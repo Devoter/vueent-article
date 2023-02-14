@@ -56,7 +56,7 @@ export default async function run() {
   console.log(jane.instanceDestroyed); // true
   console.log(sam.instanceDestroyed); // true
 
-  // загружаем данные их хранилища, можно добавить также локальный фильтр, и параметры запроса,
+  // загружаем данные из хранилища, можно добавить также локальный фильтр, и параметры запроса,
   // но их пример будет ниже
   const john2 = await coll.findOne(johnPk, { localFilter: data => Number(data.age) > 20 });
 
@@ -75,7 +75,7 @@ export default async function run() {
     queryParams: {
       ids: [1, 2, 3, 4]
     },
-    reload: false, // позволяет не перезаписывать уже загруженные экземпляры
+    reload: false, // позволяет не перезаписывать уже загруженные экземпляры, а брать их из кэша
     localFilter: data => Number(data.age) > 19
   });
 
