@@ -2,7 +2,9 @@
 import * as storage from '@/storage';
 import { SimpleCollection } from '@/collections/simple';
 
-export default async function run() {
+import './__mocks__/vue-vm';
+
+test('example 09', async () => {
   const coll = new SimpleCollection();
 
   // создаем пустой экземпляр
@@ -28,18 +30,21 @@ export default async function run() {
   const models = coll.peek();
 
   // так как экземпляр sam не сохранен, то его в списке не будет
-  console.log(models.length); // 2
+  expect(models.length).toBe(2);
   // как и ожидается, экземпляры john и jane в массиве
-  console.log(models.includes(john), models.includes(jane)); // true true
+  expect(models.includes(john)).toBe(true);
+  expect(models.includes(jane)).toBe(true);
 
   await sam.save();
 
   const models2 = coll.peek();
 
   // теперь все три записи можно достать из кэша
-  console.log(models2.length); // 3
+  expect(models2.length).toBe(3);
   // проверяем, что наши ожидания оправдались
-  console.log(models2.includes(john), models2.includes(jane), models2.includes(sam)); // true true true
+  expect(models2.includes(john)).toBe(true);
+  expect(models2.includes(jane)).toBe(true);
+  expect(models2.includes(sam)).toBe(true);
 
   const johnPk = john.pk as number;
 
@@ -49,61 +54,69 @@ export default async function run() {
   const models3 = coll.peek();
 
   // как и ожидалось, ничего в кэше нет
-  console.log(models3.length); // 0
+  expect(models3.length).toBe(0);
 
   // все экземпляры освобождены
-  console.log(john.instanceDestroyed); // true
-  console.log(jane.instanceDestroyed); // true
-  console.log(sam.instanceDestroyed); // true
+  expect(john.instanceDestroyed).toBe(true);
+  expect(jane.instanceDestroyed).toBe(true);
+  expect(sam.instanceDestroyed).toBe(true);
 
   // загружаем данные из хранилища, можно добавить также локальный фильтр, и параметры запроса,
   // но их пример будет ниже
   const john2 = await coll.findOne(johnPk, { localFilter: data => Number(data.age) > 20 });
 
+  expect(john2).not.toBeNull();
+
   if (!john2) {
-    console.error('loading failed');
     coll.destroy();
     storage.clear();
     return;
   }
 
   // как и ожидалось, экземпляры не совпадают, но модель загрузилась
-  console.log(john === john2, JSON.stringify(john2.data)); // false {"id":1,"name":"John","age":"25"}
+  expect(john === john2).toBe(false);
+  expect(john2.data).toEqual({ id: 1, name: 'John', age: '25' });
 
   const models4 = await coll.find({
     // зададим параметры запроса
     queryParams: {
       ids: [1, 2, 3, 4]
     },
-    reload: false, // возвратит данные из локального кэша, если хотя бы один эземпляр удовлетворит локальному фильтру
+    reload: false, // позволяет не перезаписывать уже загруженные экземпляры, а брать их из кэша
     localFilter: data => Number(data.age) > 19
   });
 
   // так как john уже загружен и указан флаг `reload: false`, то экземпляр останется нетронутным
-  console.log(models4.length, models4.includes(john2), models4.includes(jane), models4.includes(sam)); // 1 true false false
+  expect(models4.length).toBe(1);
+  expect(models4.includes(john2)).toBe(true);
+  expect(models4.includes(jane)).toBe(false);
+  expect(models4.includes(sam)).toBe(false);
 
   // загружаем все заново
   const models5 = await coll.find();
 
   // несмотря на то, что экземпляр, загруженный на предыдущем этапе более недоступен из кэша,
   // он все еще не очищен
-  console.log(models4[0].instanceDestroyed); // false
+  expect(models4[0].instanceDestroyed).toBe(false);
 
   // очищаем экземпляр
   coll.unload(models4[0].uid);
 
-  console.log(models4[0].instanceDestroyed); // true
+  expect(models4[0].instanceDestroyed).toBe(true);
 
   // загружено 3 новых экземпляра
-  console.log(models5.length); // 3
+  expect(models5.length).toBe(3);
 
   // выделяем значения из массива, проверяем, что первичный ключ сохранился
   const john5 = models5.find(m => m.pk === johnPk);
   const jane5 = models5.find(m => m.data.name === 'Jane');
   const sam5 = models5.find(m => m.data.name === 'Samantha');
 
+  expect(john5).not.toBeUndefined();
+  expect(jane5).not.toBeUndefined();
+  expect(sam5).not.toBeUndefined();
+
   if (!john5 || !jane5 || !sam5) {
-    console.error('some model was not loaded');
     coll.destroy();
     storage.clear();
     return;
@@ -120,7 +133,8 @@ export default async function run() {
   await jane5.save();
 
   // удаление произошло не только в хранилище, но и сам экземпляр был освобожден автоматически
-  console.log(jane5.destroyed, jane5.instanceDestroyed); // true true
+  expect(jane5.destroyed).toBe(true);
+  expect(jane5.instanceDestroyed).toBe(true);
 
   // выгружаем все экземпляры моделей
   coll.unloadAll();
@@ -129,13 +143,13 @@ export default async function run() {
   const models6 = await coll.find({ localFilter: data => Number(data.age) > 19 });
 
   // так как Jane уже удалена, то в хранилище объекта нет
-  console.log(models6.length); // 2
+  expect(models6.length).toBe(2);
   // удостоверяемся, что John и Samantha найдены
-  console.log(JSON.stringify(models6.find(m => m.data.name === 'John')!.data)); // {"id":1,"name":"John","age":"25"}
-  console.log(JSON.stringify(models6.find(m => m.data.name === 'Samantha')!.data)); // {"id":3,"name":"Samantha","age":"20"}
+  expect(models6.find(m => m.data.name === 'John')?.data).toEqual({ id: 1, name: 'John', age: '25' });
+  expect(models6.find(m => m.data.name === 'Samantha')?.data).toEqual({ id: 3, name: 'Samantha', age: '20' });
 
   // очищаем коллекцию
   coll.destroy();
   // очищаем хранилище
   storage.clear();
-}
+});

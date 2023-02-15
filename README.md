@@ -1,27 +1,37 @@
 # vueent-article
 
-This is a project with examples of using the [VueenT](https://github.com/vueent/vueent) library.
+Приложение к статье с работающими примерами из оной.
 
-## Project Setup
-
-```sh
-npm install
-```
-
-### Compile and Hot-Reload for Development
+## Установка
 
 ```sh
-npm run dev
+git clone https://github.com/Devoter/vueent-article
+cd vueent-article
+npm i
 ```
 
-### Type-Check, Compile and Minify for Production
+## Сборка
+
+Сборка имеет смысл, если хочется запускать примеры, код которых идентичен коду из статьи. В остальных случаях достаточно запустить тесты
 
 ```sh
 npm run build
 ```
 
-### Lint with [ESLint](https://eslint.org/)
+## Запуск
+
+Запуск собранной версии осуществляется следующим образом:
+
+```
+node dist/index <номер примера>
+```
+
+Запуск тестов:
 
 ```sh
-npm run lint
+npm run test
 ```
+
+## Лицензия
+
+[MIT](./LICENSE)

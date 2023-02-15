@@ -1,29 +1,27 @@
 {
-  "extends": "@vue/tsconfig/tsconfig.web.json",
-  "include": ["env.d.ts", "src/**/*", "src/**/*.vue"],
   "compilerOptions": {
     "baseUrl": ".",
-    "paths": {
-      "@/*": ["./src/*"]
-    },
-    "lib": ["esnext", "dom", "dom.iterable", "scripthost"],
-    "target": "es2018",
-    "module": "esnext",
+    "target": "ESNext",
+    "module": "ESNext",
     "strict": true,
     "importHelpers": true,
     "moduleResolution": "node",
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
+    "skipLibCheck": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "sourceMap": true,
     "declaration": true,
-    "resolveJsonModule": true
+    "declarationMap": true,
+    "resolveJsonModule": true,
+    "noStrictGenericChecks": true,
+    "paths": {
+      "@/*": ["./src/*"],
+      "@tests/*": ["./tests/*"]
+    },
+    "lib": ["ESNext"]
   },
-
-  "references": [
-    {
-      "path": "./tsconfig.config.json"
-    }
-  ]
+  "include": ["src/**/*.ts", "tests/**/*.ts"],
+  "exclude": ["node_modules", "dist"]
 }

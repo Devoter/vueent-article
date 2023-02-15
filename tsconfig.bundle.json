@@ -1,0 +1,8 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    // Configuration for build.
+    "newLine": "LF"
+  },
+  "include": ["src/**/*.ts"]
+}

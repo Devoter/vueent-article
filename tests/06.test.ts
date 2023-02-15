@@ -1,7 +1,9 @@
 import type { Data, EncodedData } from '@/models/simple/06';
 import { create } from '@/models/simple/06';
 
-export default async function run() {
+import './__mocks__/vue-vm';
+
+test('example 06', async () => {
   // функция нормализации преобразует объект с данными в формат хранилища
   function normalize(data: Data): EncodedData {
     return {
@@ -59,32 +61,40 @@ export default async function run() {
   const m1 = create(denormalize(storage.get(1)!), true, params);
   const m2 = create(undefined, true, params);
 
-  console.log(m1.new, m1.pk, JSON.stringify(m1.data)); // false 1 {"id":1,"name":"John","age":"20"}
-  console.log(m2.new, m2.pk, JSON.stringify(m2.data)); // true 0 {"id":0,"name":"","age":""}
+  expect(m1.new).toBe(false);
+  expect(m1.pk).toBe(1);
+  expect(m1.data).toEqual({ id: 1, name: 'John', age: '20' });
+  expect(m2.new).toBe(true);
+  expect(m2.pk).toBe(0);
+  expect(m2.data).toEqual({ id: 0, name: '', age: '' });
 
   m2.data.name = 'Jane';
   m2.v.c.name.touch();
   m2.data.age = 'twenty';
 
-  console.log(m2.dirty); // true
+  expect(m2.dirty).toBe(true);
   // имя было изменено, и проверка прошла успешно
-  console.log(m2.v.c.name.dirty, m2.v.c.name.invalid); // true false
+  expect(m2.v.c.name.dirty).toBe(true);
+  expect(m2.v.c.name.invalid).toBe(false);
   // возврат тоже был изменен, но флаг dirty у свойства объекта валидации выставлен не был
-  console.log(m2.v.c.age.dirty, m2.v.c.age.invalid); // false true
+  expect(m2.v.c.age.dirty).toBe(false);
+  expect(m2.v.c.age.invalid).toBe(true);
   // экземпляр не проходит проверку
-  console.log(m2.v.invalid); // true
+  expect(m2.v.invalid).toBe(true);
 
   m2.data.age = '20';
 
   // ошибка исправлена, но флаг все еще не выставлен
-  console.log(m2.v.c.age.dirty, m2.v.c.age.invalid); // false false
+  expect(m2.v.c.age.dirty).toBe(false);
+  expect(m2.v.c.age.invalid).toBe(false);
   // экземпляр проходит проверку
-  console.log(m2.v.invalid); // false
+  expect(m2.v.invalid).toBe(false);
 
   m2.v.c.age.touch();
 
   // теперь флаг выставлен
-  console.log(m2.v.c.age.dirty, m2.v.c.age.invalid); // true false
+  expect(m2.v.c.age.dirty).toBe(true);
+  expect(m2.v.c.age.invalid).toBe(false);
 
   // во время выполнения операции (создание) будут выставлены флаги
   // saving и creating
@@ -92,30 +102,37 @@ export default async function run() {
 
   // флаг изменения состояния модели после сохранения сбрасывается автоматически,
   // а такой же флаг объекта валидации не, нуобходимо вызывать метод `v.reset()` или `rollback()`
-  console.log(m2.dirty, m2.v.dirty); // false true
+  expect(m2.dirty).toBe(false);
+  expect(m2.v.dirty).toBe(true);
 
   m2.v.reset();
 
   // теперь все ожидаемо
-  console.log(m2.dirty, m2.v.dirty); // false false
+  expect(m2.dirty).toBe(false);
+  expect(m2.v.dirty).toBe(false);
 
   // флаг new также сброшен, а первичный ключ получил значение
-  console.log(m2.new, m2.pk, JSON.stringify(m2.data)); // false 2 {"id":2,"name":"Jane","age":"20"}
+  expect(m2.new).toBe(false);
+  expect(m2.pk).toBe(2);
+  expect(m2.data).toEqual({ id: 2, name: 'Jane', age: '20' });
 
   // изменим поле name первой модели и зафиксируем изменения в объекте валидации
   m1.data.name = 'John Doe';
   m1.v.c.name.touch();
 
-  console.log(JSON.stringify(m1.data)); // {"id":1,"name":"John Doe","age":"20"}
+  expect(m1.data).toEqual({ id: 1, name: 'John Doe', age: '20' });
 
   // оба флага dirty выставлены
-  console.log(m1.dirty, m1.v.dirty); // true true
+  expect(m1.dirty).toBe(true);
+  expect(m1.v.dirty).toBe(true);
 
   // произведем откат состояния
   m1.rollback();
 
   // проверим откат состояния
-  console.log(m1.dirty, m1.v.dirty, JSON.stringify(m1.data)); // false false {"id":1,"name":"John","age":"20"}
+  expect(m1.dirty).toBe(false);
+  expect(m1.v.dirty).toBe(false);
+  expect(m1.data).toEqual({ id: 1, name: 'John', age: '20' });
 
   // выставляем флаг deleted в true
   m1.delete();
@@ -126,13 +143,13 @@ export default async function run() {
 
   // объект помечен, как удаленный в хранилище, им все еще можно пользоваться,
   // но сохранять уже нельзя
-  console.log(m1.destroyed); // true
+  expect(m1.destroyed).toBe(true);
 
   // очищаем экземпляры, позволяем сборщику мусора выполнить свою работу
   m1.destroy();
   m2.destroy();
 
   // экземпляры очищены, сборщик мусора доволен нами
-  console.log(m1.instanceDestroyed); // true
-  console.log(m2.instanceDestroyed); // true
-}
+  expect(m1.instanceDestroyed).toBe(true);
+  expect(m2.instanceDestroyed).toBe(true);
+});
