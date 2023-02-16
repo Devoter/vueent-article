@@ -82,12 +82,11 @@ export default async function run() {
   // так как john уже загружен и указан флаг `reload: false`, то экземпляр останется нетронутным
   console.log(models4.length, models4.includes(john2), models4.includes(jane), models4.includes(sam)); // 1 true false false
 
-  // загружаем все заново
-  const models5 = await coll.find();
+  // загружаем все заново, при помощи флага `force` автоматически очищаем замененные экземпляры
+  const models5 = await coll.find({ force: true });
 
-  // несмотря на то, что экземпляр, загруженный на предыдущем этапе более недоступен из кэша,
-  // он все еще не очищен
-  console.log(models4[0].instanceDestroyed); // false
+  // экземпляр, загруженный на предыдущем этапе, очищен
+  console.log(models4[0].instanceDestroyed); // true
 
   // очищаем экземпляр
   coll.unload(models4[0].uid);

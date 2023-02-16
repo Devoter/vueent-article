@@ -92,12 +92,11 @@ test('example 09', async () => {
   expect(models4.includes(jane)).toBe(false);
   expect(models4.includes(sam)).toBe(false);
 
-  // загружаем все заново
-  const models5 = await coll.find();
+  // загружаем все заново, при помощи флага `force` автоматически очищаем замененные экземпляры
+  const models5 = await coll.find({ force: true });
 
-  // несмотря на то, что экземпляр, загруженный на предыдущем этапе более недоступен из кэша,
-  // он все еще не очищен
-  expect(models4[0].instanceDestroyed).toBe(false);
+  // экземпляр, загруженный на предыдущем этапе, очищен
+  expect(models4[0].instanceDestroyed).toBe(true);
 
   // очищаем экземпляр
   coll.unload(models4[0].uid);
