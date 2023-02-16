@@ -31,9 +31,9 @@
     "vue": "^3.2.47"
   },
   "dependencies": {
-    "@vueent/core": "^0.1.1",
-    "@vueent/mix-models": "^0.1.1",
-    "@vueent/reactive": "^0.1.0",
-    "@vueent/store": "^0.1.3"
+    "@vueent/core": "^0.2.0",
+    "@vueent/mix-models": "^0.2.0",
+    "@vueent/reactive": "^0.2.0",
+    "@vueent/store": "^0.2.0"
   }
 }
