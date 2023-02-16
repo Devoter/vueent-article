@@ -88,11 +88,6 @@ export default async function run() {
   // экземпляр, загруженный на предыдущем этапе, очищен
   console.log(models4[0].instanceDestroyed); // true
 
-  // очищаем экземпляр
-  coll.unload(models4[0].uid);
-
-  console.log(models4[0].instanceDestroyed); // true
-
   // загружено 3 новых экземпляра
   console.log(models5.length); // 3
 

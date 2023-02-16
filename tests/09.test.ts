@@ -98,11 +98,6 @@ test('example 09', async () => {
   // экземпляр, загруженный на предыдущем этапе, очищен
   expect(models4[0].instanceDestroyed).toBe(true);
 
-  // очищаем экземпляр
-  coll.unload(models4[0].uid);
-
-  expect(models4[0].instanceDestroyed).toBe(true);
-
   // загружено 3 новых экземпляра
   expect(models5.length).toBe(3);
 
